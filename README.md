@@ -62,11 +62,11 @@ If you usually work in the EByte ecosystem with its serial interfaced modules, t
 
 The module is **not** in the BOM CSV file, you need to get it off AliExpress:
 - 400MHz:
-    - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005003567891629.html
-    - cojxu Official Store: https://www.aliexpress.com/item/1005003567929089.html
+    - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005002090403425.html
+    - cojxu Official Store: https://www.aliexpress.com/item/1005002060190690.html
 - 900MHz
-    - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005003509312425.html
-    - cojxu Official Store: https://www.aliexpress.com/item/1005003646639064.html
+    - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005002116885160.html
+    - cojxu Official Store: https://www.aliexpress.com/item/1005003681666059.html
 
 ## Source code
 Docs TBD
