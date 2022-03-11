@@ -1,12 +1,12 @@
 # LoRa-To-MQTT Gateway
 ## Introduction
-This repository gives you everything you need to easily build (It's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRA modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
+This repository gives you everything you need to easily build (it's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRa modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
 - One with an EByte E32
 - One with EByte E220
 
-For giving the board Ethernet capability, I'm using the [QuinLED ESP32 Ethernet Hat](https://quinled.info/quinled-esp32-ethernet/). Of course, It's natural that I *should* have also used a [QuinLed ESP32](https://quinled.info/quinled-esp32/), but I had a few spare standard ESP32 devboards laying around with no use, so I designed the board around these. But that said, I might one day design a version completely based on the QuinLED-ESP32.
+For giving the board Ethernet capability, I'm using the [QuinLED ESP32 Ethernet Hat](https://quinled.info/quinled-esp32-ethernet/). Of course, It's natural that I *should* have also used a [QuinLed ESP32](https://quinled.info/quinled-esp32/), but I had a few spare standard ESP32 devboards laying around with no use for, so I designed the board around these. But that said, I might one day design a version completely based on the QuinLED-ESP32.
 
-To easily switch between Wi-FI and Ethernet, there's a jumper on the board to do that. This even works with the board powered; no need to cut power.
+To easily switch between Wi-FI and Ethernet, there's a jumper on the board to do just that. This even works with the board powered; no need to cut power.
 
 ## What do I need to do to get one?
 Again, this is a DIY project! So first off, you need a few soldering skills and I highly recommend either a SMD hot plate or hot air gun to solder the Ebyte E32 module. Its **impossible** to solder it with just an iron.
@@ -14,11 +14,13 @@ Again, this is a DIY project! So first off, you need a few soldering skills and 
 ### 1. Get the PCBs
 So you want to get the PCBs printed at a PCB prototype factory of your choice, like JLCPCB or PCBWay. I've included the Gerber files for both in the respectiv folder. If you want to use a different service provider, you need to check if they may accept these gerbers or generate them yourself.
 
+I also **highly recommend** that you order this PCB with a stencil, otherwise you gonna have a hard time putting the paste on the pads of the EByte module!
+
 ### 2. Get the components
 **TBD:** I'll generate a BOM file per board version and throw it into its respective folder
 
 ### 3. Build the board and wire it up
-Each PCB folder has an iBOM HTML file which gives you nice soldering instructions / overview, find it in the `ibom` folder in each versions folder. When you've soldered the board, simply wire it up with a 5V power source and there you go! It consumes less than 200mA, so you can easily use an old 500mA or 1A phone charger for it.
+Each PCB folder has an iBOM HTML file which gives you nice soldering instructions / overview, find it in the `ibom` folder in each versions folder. When you've soldered the board, simply wire it up with a 5V power source and there you go! It consumes less than 200mA, so you can easily use an old 500mA, 1A (or higher) phone charger for it.
 
 ### 4. Install the software
 Source is available in the `src` folder. Download Arduino IDE, check the `config.h` file and replace the placeholders with your settings, compile and upload to the ESP32. That should be it and the gateway should pop up in your MQTT server and send health check messages every 5 seconds.
@@ -40,7 +42,7 @@ Which one should you pick? That's pretty easy and defined by one factor:
 - If you / your sensors and other boards use the RFM95 modules and the Arduino-LoRa library: Use the E32 version!
 - If you usually use EByte modules that use serial communication and Renzo Mischiantis [famous Arduino library](https://github.com/xreef/LoRa_E32_Series_Library): Use the E220 version.
 
-You need to choose between those, as the EByte modules that use serial communication can't communicate with the RFM95 modules, although they use the same Semtech SX1276 LoRa chip. That's because the EByte serial modules also have a litte MCU onboard that already does its own "stuff" / protocol when sending messages via LoRa. One would need to understand how exactly that works to read these messages with a LoRa modules that uses direct SPI communication to the Semtech chip (like the specific E32 module I use, or the RFM95) to make them work with each other.
+You need to choose between those, as the EByte modules that use serial communication can't communicate with the RFM95 modules, although they use the same Semtech SX1276 LoRa chip. That's because the EByte serial-operated modules also have a litte MCU onboard that already does its own "stuff" / protocol when sending messages via LoRa. So you don't talk directly to the Semtech chip, but that little MCU instead. One would need to understand how exactly that works to read these messages with a LoRa modules that uses direct SPI communication to the Semtech chip (like the specific E32 module I use, or the RFM95) to make them work with each other.
 
 ### LoRa-Gateway-E32
 ![LoRa-Gateway-E32](/pcbs/LoRa-Gateway-E32/LoRa-Gateway-E32.png)
@@ -58,7 +60,7 @@ The software for this version is available in its first alpha v0 in the `src` fo
 
 ### LoRa-Gateway-E220
 ![LoRa-Gateway-E220](/pcbs/LoRa-Gateway-E220/LoRa-Gateway-E220.png)
-If you usually work in the EByte ecosystem with its serial interfaced modules, this board is for you. **However** Iv'e not done a port of my E32 based software for this board. And I'm actually not planning to do so, as I personally use the E32 version. But you're welcome to port it using Renzo Mischiantis [Arduino library](https://github.com/xreef/LoRa_E32_Series_Library).
+If you usually work in the EByte ecosystem with its serial interfaced modules, this board is for you. **However** I've not done a port of my E32 based software for this board. And I'm actually not planning to do so, as I personally use the E32 version. But you're welcome to port it using Renzo Mischiantis [Arduino library](https://github.com/xreef/LoRa_E32_Series_Library).
 
 The module is **not** in the BOM CSV file, you need to get it off AliExpress:
 - 400MHz:
