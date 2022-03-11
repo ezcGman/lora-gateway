@@ -43,6 +43,7 @@ Which one should you pick? That's pretty easy and defined by one factor:
 You need to choose between those, as the EByte modules that use serial communication can't communicate with the RFM95 modules, although they use the same Semtech SX1276 LoRa chip. That's because the EByte serial modules also have a litte MCU onboard that already does its own "stuff" / protocol when sending messages via LoRa. One would need to understand how exactly that works to read these messages with a LoRa modules that uses direct SPI communication to the Semtech chip (like the specific E32 module I use, or the RFM95) to make them work with each other.
 
 ### LoRa-Gateway-E32
+![LoRa-Gateway-E220](/pcbs/LoRa-Gateway-E220/LoRa-Gateway-E220.png)
 This version is based on the EByte E32-400M20S or E32-900M20S, which offers direct serial communicaton to the Semtech SX1276. You need to use this specific module not any other that uses serial communication. Pick the right one for your region (tl;dr: 400 for US/Asia, 900 for Europe).
 
 The module is **not** in the BOM CSV file, you need to get it off AliExpress:
@@ -56,6 +57,7 @@ The module is **not** in the BOM CSV file, you need to get it off AliExpress:
 The software for this version is available in its first alpha v0 in the `src` folder.
 
 ### LoRa-Gateway-E220
+![LoRa-Gateway-E220](/pcbs/LoRa-Gateway-E32/LoRa-Gateway-E32.png)
 If you usually work in the EByte ecosystem with its serial interfaced modules, this board is for you. **However** Iv'e not done a port of my E32 based software for this board. And I'm actually not planning to do so, as I personally use the E32 version. But you're welcome to port it using Renzo Mischiantis [Arduino library](https://github.com/xreef/LoRa_E32_Series_Library).
 
 The module is **not** in the BOM CSV file, you need to get it off AliExpress:
