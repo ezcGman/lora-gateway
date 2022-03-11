@@ -1,6 +1,6 @@
 # LoRa-To-MQTT Gateway
 ## Introduction
-This repository gives your everything you need to easyily build (It's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRA modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
+This repository gives you everything you need to easyily build (It's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRA modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
 - One with an EByte E32
 - One with EByte E220
 
