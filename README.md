@@ -15,10 +15,10 @@ Again, this is a DIY project! So first off, you need a few soldering skills and 
 So you want to get the PCBs printed at a PCB prototype factory of your choice, like JLCPCB or PCBWay. I've included the Gerber files for both in the respectiv folder. If you want to use a different service provider, you need to check if they may accept these gerbers or generate them yourself.
 
 ### 2. Get the components
-The PCB folders include a BOM CSV file you can use to upload to e.g. LCSC and easily get all the components in one click. Of course, you can also get them from AliExpress, Mouser, Digikey or wherever you want.
+**TBD:** I'll generate a BOM file per board version and throw it into its respective folder
 
 ### 3. Build the board and wire it up
-Each PCB folder has a BOM HTML file which gives you nice soldering instructions / overview. When you've soldered the board, simply wire it up with a 5V power source and there you go! It consumes less than 200mA, so you can easily use an old 500mA or 1A phone charger for it.
+Each PCB folder has an iBOM HTML file which gives you nice soldering instructions / overview, find it in the `ibom` folder in each versions folder. When you've soldered the board, simply wire it up with a 5V power source and there you go! It consumes less than 200mA, so you can easily use an old 500mA or 1A phone charger for it.
 
 ### 4. Install the software
 Source is available in the `src` folder. Download Arduino IDE, check the `config.h` file and replace the placeholders with your settings, compile and upload to the ESP32. That should be it and the gateway should pop up in your MQTT server and send health check messages every 5 seconds.
