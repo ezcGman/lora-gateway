@@ -17,7 +17,12 @@ So you want to get the PCBs printed at a PCB prototype factory of your choice, l
 I also **highly recommend** that you order this PCB with a stencil, otherwise you gonna have a hard time putting the paste on the pads of the EByte module!
 
 ### 2. Get the components
-**TBD:** I'll generate a BOM file per board version and throw it into its respective folder
+* **TBD:** I'll generate a BOM file per board version and throw it into its respective folder
+* Components you need for both boards:
+    * Regular ESP 32 DevKit (pick one with 2x15 pins!!): https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20220311122647&SearchText=esp32+devkit
+    * *(optional, if you want Ethernet)* QuinLED ESP32 with Ethernet hat:
+        * Worldwide store: https://shop.allnetchina.cn/collections/quinled/products/quinled-esp32
+        * US only: https://drzzs.com/shop/quinled-esp32/
 
 ### 3. Build the board and wire it up
 Each PCB folder has an iBOM HTML file which gives you nice soldering instructions / overview, find it in the `ibom` folder in each versions folder. When you've soldered the board, simply wire it up with a 5V power source and there you go! It consumes less than 200mA, so you can easily use an old 500mA, 1A (or higher) phone charger for it.
@@ -70,5 +75,61 @@ The module is **not** in the BOM CSV file, you need to get it off AliExpress:
     - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005002116885160.html
     - cojxu Official Store: https://www.aliexpress.com/item/1005003681666059.html
 
-## Source code
-Docs TBD
+## Source Code / Software
+The software I've developed for this is meant to be easily extensible without touching the actual logic of the gateway itself, but instead adding little piece of code to a separate file.
+
+Take a look at [`lora-ids.h`](/src/lora-gateway-e32/lora-ids.h). This file is meant to be shared between this gateway and all sensors you develope. It has a list of different message types and you can easily add your own. E.g., it has a "mailbox" type which defines a few properties a mailbox would send. This makes it very easy to read and process this messages **and** create topics in your MQTT server which you then can listen to. There's also a "custom" type which basically has free text and is maybe good for debugging. 
+
+Feel free to add your own types in this file. You will need to add two things:
+* An ID for it, like `#define LORA_MESSAGE_ID_CUSTOM 0x0`
+* And define the struct that describes its properties: `struct LoRaMessageCustom : LoRaBase {`
+
+### How do the MQTT topics look like I can subscribe to?
+The whole example we use to construct the MQTT topic name is based on the case of:
+
+The device with ID `0xA` has sent a message of type `mailbox` and the gateway receives it.
+
+So let's first take the `mailbox` message type as an example. It define these properties:
+* long duration
+* float distance
+* float humidity
+* float temperature
+
+Additionally, it defines its own name (and with that: The parent topic for these message types):
+* `String getMqttTopicName() { return "mailbox"; }`
+
+So whenever the gateway will receive a message of this type, it will read the properties from it and drop them into these topics:
+* `???/messages/mailbox/duration`
+* `???/messages/mailbox/distance`
+* `???/messages/mailbox/humidity`
+* `???/messages/mailbox/temperature`
+
+But what is `???/`. That's easy: Easy device / sensor you develop should also be registered in `lora-ids.h`. At the very top, there is list of devices, each with
+* ID
+* Device name, which affectively is used to construct the MQTT topic
+
+The gateway will sort all messages it receives by device it received those from and prefixes it with its own device name (also defined in `lora-ids.h`). This allows you to listen to specific fields/values of specific message types from a specific device!
+
+So full topic name for the four values above:
+* `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/duration`
+* `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/distance`
+* `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/humidity`
+* `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/temperature`
+
+Now you can easily:
+* Add your own devices by:
+    * Adding it to the `LORA_DEVICE_IDS`
+* Add new message types
+
+### How can I actually send messages?
+For this we take a look at how the actual message is constructed that is sent via LoRa. The *basic idea* is stolen from the Arduino-LoRa library, which uses singly bytes to identify senders, receivers, etc.
+
+Looking at a single message:
+* 1st byte is the recipient ID
+    * This can also be set to 0xFF, which indicates a broadcase message that is received and can be processed by all devices.
+* 2nd byte is the sender ID
+* 3rd byte is the message ID
+* 4th-255th byte is the message we will split up
+    * The message simply has all values joined together by a `|`. So taking the `mailbox` message example from above, the value for the message could look like this: `12345|3.56|44.55|27.4`
+
+I will soon release my mailbox sensor PCB and source code, so you can see the sender implemeted :)
