@@ -35,7 +35,7 @@ SPIClass spiE32(HSPI);
 const byte maxConnTries = 15;
 
 WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient);
+PubSubClient mqttClient(wifiClient);  
 
 
 void connectMqtt(bool sleepOnMqttUnreachable = false) {
@@ -259,24 +259,24 @@ void onLoRaReceive(int packetSize) {
 
   // read packet header bytes:
   byte recipientId = LoRa.read();          // Read recipient ID
-  byte senderId = LoRa.read();            // Read sender ID
-  byte msgId = LoRa.read();     // Read message ID
-  byte messageLength = LoRa.read();    // incoming msg length
-  String message = "";                 // payload of packet
+  byte senderId = LoRa.read();             // Read sender ID
+  byte msgId = LoRa.read();                // Read message ID
+  byte messageLength = LoRa.read();        // incoming msg length
+  String message = "";                     // payload of packet
 
-  while (LoRa.available()) {            // can't use readString() in callback, so
-    message += (char)LoRa.read();      // add bytes one by one
+  while (LoRa.available()) {               // can't use readString() in callback, so
+    message += (char)LoRa.read();          // add bytes one by one
   }
 
-  if (message.length() != messageLength) {   // check length for error
+  if (message.length() != messageLength) { // check length for error
     Serial.println("error: message length does not match length");
-    return;                             // skip rest of function
+    return;                                // skip rest of function
   }
 
   // if the recipient isn't this device or broadcast,
   if (recipientId != LORA_DEVICE_ID && recipientId != LORA_BROADCAST_ID) {
     Serial.println("This message is not for me.");
-    return;                             // skip rest of function
+    return;                                // skip rest of function
   }
 
   LoRaBase* messageStruct = mapLoRaMessageToStruct(message, msgId);
