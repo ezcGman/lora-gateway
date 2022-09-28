@@ -131,7 +131,26 @@ Now you can easily:
     * Define the struct that describes it
 
 ### How can I actually send messages?
-TBD actual example here after we refactored sending
+Take a look at [`sendLoRaMessage`](/src/lora-gateway-e32/lora-ids.h#L160) function:
+`bool sendLoRaMessage(byte messageID, LoRaBase *loRaMessage, byte recipientId = 0, byte senderId = 0)`
+It expects us to give it:
+* The message ID we're going to send
+* As also the message itself
+We can also optionally specify:
+* The recipientId of this message. If not specified, it defaults to `LORA_GATEWAY_ID`
+* The senderId, which defaults to `LORA_DEVICE_ID`, if not specified
+
+So in your code, simply create an instance of the message ID you want to send and pass it to `sendLoRaMessage`:
+```
+LoRaMessageMailbox *loRaMessage = new LoRaMessageMailbox;
+loRaMessage->duration = duration;
+loRaMessage->distance = distance;
+loRaMessage->humidity = humidity;
+loRaMessage->temperature = temperature;
+
+sendLoRaMessage(LORA_MESSAGE_ID_MAILBOX, loRaMessage);
+```
+And that's it :)
 
 #### How does it work under the hood?
 For this we take a look at how the actual message is constructed that is sent via LoRa. The *basic idea* is stolen from the Arduino-LoRa library, which uses singly bytes to identify senders, receivers, etc.
@@ -143,5 +162,3 @@ Looking at a single message:
 * 3rd byte is the message ID
 * 4th-255th byte is the message we will split up
     * The message simply has all values joined together by a `|`. So taking the `mailbox` message example from above, the value for the message could look like this: `12345|3.56|44.55|27.4`
-
-I will soon release my mailbox sensor PCB and source code, so you can see the sender implemeted :)
