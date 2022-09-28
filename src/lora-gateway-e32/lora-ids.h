@@ -1,6 +1,6 @@
 #include <map>
 
-// ########## DEVICE IDS ##########
+// ########## DEVICE / RECIPIENT IDS ##########
 std::map<byte, String> LORA_DEVICE_IDS {
   {0x1, "lora-gateway-e32"}, // 1
   {0xA, "mailbox-sensor"}, // 10
@@ -8,15 +8,9 @@ std::map<byte, String> LORA_DEVICE_IDS {
   {0xC, "dryer-sensor"} // 12
 };
 
-String getLoRaDeviceNameById(byte deviceId) {
-  // C++v20 introduces ::contains() for maps...
-  auto search = LORA_DEVICE_IDS.find(deviceId);
-
-  return search != LORA_DEVICE_IDS.end() ? LORA_DEVICE_IDS[deviceId] : "unknown";
-}
-// ################################
-
+// Special type of "recipient": Broadcast, so for everybody
 #define LORA_BROADCAST_ID 0xFF // 255
+// ################################
 
 // ########## MESSAGE TYPES ##########
 String MESSAGE_DELIMITER = String('|');
@@ -122,21 +116,29 @@ struct LoRaMessagePowerConsumption : LoRaBase {
 struct LoRaMessageTimestamp : LoRaBase {
   time_t timestamp;
 };
+// ###################################
 
+// ########## FUNCTIONS ##########
+String getLoRaDeviceNameById(byte deviceId) {
+  // C++v20 introduces ::contains() for maps...
+  auto search = LORA_DEVICE_IDS.find(deviceId);
+
+  return search != LORA_DEVICE_IDS.end() ? LORA_DEVICE_IDS[deviceId] : "unknown";
+}
 
 LoRaBase* mapLoRaMessageToStruct(String message, byte msgId) {
   std::vector<String> splittedMessage = strSplit('|', message);
-  LoRaBase *loraMessage = nullptr;
+  LoRaBase *loRaMessage = nullptr;
 
   switch (msgId) {
     case LORA_MESSAGE_ID_MAILBOX:
     {
-      loraMessage = new LoRaMessageMailbox;
+      loRaMessage = new LoRaMessageMailbox;
     }
 
     case LORA_MESSAGE_ID_POWER_CONSUMPTION:
     {
-      loraMessage = new LoRaMessagePowerConsumption;
+      loRaMessage = new LoRaMessagePowerConsumption;
     }
 
     case LORA_MESSAGE_ID_TIMESTAMP:
@@ -145,13 +147,29 @@ LoRaBase* mapLoRaMessageToStruct(String message, byte msgId) {
     case LORA_MESSAGE_ID_CUSTOM:
     default:
     {
-      loraMessage = new LoRaMessageCustom;
+      loRaMessage = new LoRaMessageCustom;
     }
   }
-  if (loraMessage != nullptr) {
-    loraMessage->fromLoRaMessage(splittedMessage);
+  if (loRaMessage != nullptr) {
+    loRaMessage->fromLoRaMessage(splittedMessage);
   }
 
-  return loraMessage;
+  return loRaMessage;
+}
+
+bool sendLoRaMessage(byte messageID, LoRaBase *loRaMessage, byte recipientId = 0, byte senderId = 0) {
+  if (recipientId == 0) recipientId = LORA_GATEWAY_ID;
+  if (senderId == 0) senderId = LORA_DEVICE_ID;
+  String message = loRaMessage->toLoRaMessage();
+
+  LoRa.beginPacket();
+  LoRa.write(recipientId); // Set recipient ID
+  LoRa.write(senderId); // Set sender ID
+  LoRa.write(messageID); // Set message ID
+  LoRa.write(message.length()); // Message length
+  LoRa.print(message); // The concated message
+  LoRa.endPacket();
+
+  return true;
 }
 // ###################################
