@@ -131,11 +131,12 @@ Now you can easily:
     * Define the struct that describes it
 
 ### How can I actually send messages?
-Take a look at [`sendLoRaMessage`](/src/lora-gateway-e32/lora-ids.h#L160) function:
+Take a look at the [`sendLoRaMessage`](/src/lora-gateway-e32/lora-ids.h#L160) function:
 `bool sendLoRaMessage(byte messageID, LoRaBase *loRaMessage, byte recipientId = 0, byte senderId = 0)`
 It expects us to give it:
 * The message ID we're going to send
 * As also the message itself
+
 We can also optionally specify:
 * The recipientId of this message. If not specified, it defaults to `LORA_GATEWAY_ID`
 * The senderId, which defaults to `LORA_DEVICE_ID`, if not specified
