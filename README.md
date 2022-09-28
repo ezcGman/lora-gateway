@@ -76,18 +76,19 @@ The module is **not** in the BOM CSV file, you need to get it off AliExpress:
     - cojxu Official Store: https://www.aliexpress.com/item/1005003681666059.html
 
 ## Source Code / Software
-The software I've developed for this is meant to be easily extensible without touching the actual logic of the gateway itself, but instead adding little piece of code to a separate file.
+The software I've developed for this is meant to be easily extensible without touching the actual logic of the gateway itself, but instead adding a little piece of code to a separate file.
 
-Take a look at [`lora-ids.h`](/src/lora-gateway-e32/lora-ids.h). This file is meant to be shared between this gateway and all sensors you develope. It has a list of different message types and you can easily add your own. E.g., it has a "mailbox" type which defines a few properties a mailbox would send. This makes it very easy to read and process this messages **and** create topics in your MQTT server which you then can listen to. There's also a "custom" type which basically has free text and is maybe good for debugging. 
+Take a look at [`lora-ids.h`](/src/lora-gateway-e32/lora-ids.h). This file is meant to be shared between this gateway and all sensors you develop. It has a list of different message types and you can easily add your own. E.g., it has a "mailbox" type which defines a few properties a mailbox would send. This makes it very easy to read and process this messages **and** create topics in your MQTT server which you then can listen to. There's also a "custom" type which basically has free text and is maybe good for debugging. 
 
 Feel free to add your own types in this file. You will need to add two things:
 * An ID for it, like `#define LORA_MESSAGE_ID_CUSTOM 0x0`
-* And define the struct that describes its properties: `struct LoRaMessageCustom : LoRaBase {`
+* Define the struct that describes its properties: `struct LoRaMessageCustom : LoRaBase`
 
 ### How do the MQTT topics look like I can subscribe to?
-The whole example we use to construct the MQTT topic name is based on the case of:
-
-The device with ID `0xA` has sent a message of type `mailbox` and the gateway receives it.
+The subject where a message falls into is built out of the gateway ID, device ID and message ID. So for the following example we assume that:
+* Device with ID `0xA` and name `mailbox-sensor` has sent
+* a message of type `LORA_MESSAGE_ID_MAILBOX` and
+* the gateway with ID `0x1` and name `lora-gateway-e32` receives it.
 
 So let's first take the `mailbox` message type as an example. It define these properties:
 * long duration
@@ -95,7 +96,7 @@ So let's first take the `mailbox` message type as an example. It define these pr
 * float humidity
 * float temperature
 
-Additionally, it defines its own name (and with that: The parent topic for these message types):
+Additionally, it defines its own name (and with that: The parent for these properties):
 * `String getMqttTopicName() { return "mailbox"; }`
 
 So whenever the gateway will receive a message of this type, it will read the properties from it and drop them into these topics:
@@ -104,13 +105,19 @@ So whenever the gateway will receive a message of this type, it will read the pr
 * `???/messages/mailbox/humidity`
 * `???/messages/mailbox/temperature`
 
-But what is `???/`. That's easy: Easy device / sensor you develop should also be registered in `lora-ids.h`. At the very top, there is list of devices, each with
-* ID
-* Device name, which affectively is used to construct the MQTT topic
+But where does the `/messages/` part come form and what is `???/`. That's easy: Easy device / sensor you develop should also be registered in `lora-ids.h`. At the very top, there is list of devices, each with:
+* Device ID
+* Device name (which affectively is used to construct the MQTT topic)
 
-The gateway will sort all messages it receives by device it received those from and prefixes it with its own device name (also defined in `lora-ids.h`). This allows you to listen to specific fields/values of specific message types from a specific device!
+The gateway will sort all messages it receives by device and prefixes it with that device name, *plus* sorts all messages under a `messages` topic to allow the device have other topics next to the actual messages. This allows you to listen to specific fields/values of specific message types from a specific device!
 
-So full topic name for the four values above:
+So we now know this:
+* `???/mailbox-sensor/messages/mailbox/duration`
+* `???/mailbox-sensor/messages/mailbox/distance`
+* `???/mailbox-sensor/messages/mailbox/humidity`
+* `???/mailbox-sensor/messages/mailbox/temperature`
+
+The last missing piece is the gateway that receives the messages. It's also defined as a device, so it also has a name, so we can easily construct the full topic name for our example:
 * `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/duration`
 * `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/distance`
 * `lora-gateway-e32/devices/mailbox-sensor/messages/mailbox/humidity`
@@ -118,10 +125,15 @@ So full topic name for the four values above:
 
 Now you can easily:
 * Add your own devices by:
-    * Adding it to the `LORA_DEVICE_IDS`
-* Add new message types
+    * Adding it to the `LORA_DEVICE_IDS` with an ID and name
+* Add new message types by:
+    * Define an ID for it
+    * Define the struct that describes it
 
 ### How can I actually send messages?
+TBD actual example here after we refactored sending
+
+#### How does it work under the hood?
 For this we take a look at how the actual message is constructed that is sent via LoRa. The *basic idea* is stolen from the Arduino-LoRa library, which uses singly bytes to identify senders, receivers, etc.
 
 Looking at a single message:
