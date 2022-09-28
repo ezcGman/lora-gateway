@@ -131,6 +131,9 @@ Now you can easily:
     * Define the struct that describes it
 
 ### How can I actually send messages?
+TBD actual example here after we refactored sending
+
+#### How does it work under the hood?
 For this we take a look at how the actual message is constructed that is sent via LoRa. The *basic idea* is stolen from the Arduino-LoRa library, which uses singly bytes to identify senders, receivers, etc.
 
 Looking at a single message:
