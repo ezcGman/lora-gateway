@@ -32,7 +32,7 @@ Each PCB folder has an iBOM HTML file which gives you nice soldering instruction
 ### 4. Install the software
 Source is available in the `src` folder. Download Arduino IDE, check the `config.h` file and replace the placeholders with your settings, compile and upload to the ESP32. That should be it and the gateway should pop up in your MQTT server and send health check messages every 5 seconds.
 
-How you can now have your sensors and boards have LoRa messages sent to it can be found in the ["Source Code / Software"](README.md#source-code--software) section below.
+How you can now have your sensors and boards have LoRa messages sent to it can be found in the ["Source Code / Software"](#source-code--software) section below.
 
 ## PCBs
 ### General design
