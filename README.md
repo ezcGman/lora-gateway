@@ -1,8 +1,8 @@
 # LoRa-To-MQTT Gateway
 ## Introduction
 This repository gives you everything you need to easily build (it's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRa modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
-- One with an EByte E32
-- One with EByte E220
+- One using an EByte E32
+- One using an EByte E220
 
 For giving the board Ethernet capability, I'm using the [QuinLED ESP32 Ethernet Hat](https://quinled.info/quinled-esp32-ethernet/). Of course, It's natural that I *should* have also used a [QuinLed ESP32](https://quinled.info/quinled-esp32/), but I had a few spare standard ESP32 devboards laying around with no use for, so I designed the board around these. But that said, I might one day design a version completely based on the QuinLED-ESP32.
 
@@ -17,8 +17,10 @@ So you want to get the PCBs printed at a PCB prototype factory of your choice, l
 I also **highly recommend** that you order this PCB with a stencil, otherwise you gonna have a hard time putting the paste on the pads of the EByte module!
 
 ### 2. Get the components
-* **TBD:** I'll generate a BOM file per board version and throw it into its respective folder
-* Components you need for both boards:
+* Look up the iBOM files to get a list of components you need:
+    * [E32 version iBOM](https://github.com/ezcGman/lora-gateway/blob/master/pcbs/LoRa-Gateway-E32/ibom/LoRa-Gateway-E32.html)
+    * [E220 version iBOM](https://github.com/ezcGman/lora-gateway/blob/master/pcbs/LoRa-Gateway-E220/ibom/LoRa-Gateway-E220.html)
+* Additional links for the ESP32 and QuinLED Ethernet hat:
     * Regular ESP 32 DevKit (pick one with 2x15 pins!!): https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20220311122647&SearchText=esp32+devkit
     * *(optional, if you want Ethernet)* QuinLED ESP32 with Ethernet hat:
         * Worldwide store: https://shop.allnetchina.cn/collections/quinled/products/quinled-esp32
@@ -30,7 +32,7 @@ Each PCB folder has an iBOM HTML file which gives you nice soldering instruction
 ### 4. Install the software
 Source is available in the `src` folder. Download Arduino IDE, check the `config.h` file and replace the placeholders with your settings, compile and upload to the ESP32. That should be it and the gateway should pop up in your MQTT server and send health check messages every 5 seconds.
 
-How you can now have your sensors and boards have LoRa messages sent to it can be found in the "Source Code / Software" section below.
+How you can now have your sensors and boards have LoRa messages sent to it can be found in the ["Source Code / Software"](README.md#source-code--software) section below.
 
 ## PCBs
 ### General design
