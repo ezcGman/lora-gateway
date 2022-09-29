@@ -9,7 +9,7 @@ For giving the board Ethernet capability, I'm using the [QuinLED ESP32 Ethernet 
 To easily switch between Wi-FI and Ethernet, there's a jumper on the board to do just that. This even works with the board powered; no need to cut power.
 
 ## What do I need to do to get one?
-Again, this is a DIY project! So first off, you need a few soldering skills and I highly recommend either a SMD hot plate or hot air gun to solder the Ebyte E32 module. Its **impossible** to solder it with just an iron.
+Again, this is a DIY project! So first off, you need a few soldering skills and I highly recommend either a SMD hot plate or hot air gun to solder the Ebyte E32 module. Its **very very hard** to solder it with just an iron!
 
 ### 1. Get the PCBs
 So you want to get the PCBs printed at a PCB prototype factory of your choice, like JLCPCB or PCBWay. I've included the Gerber files for both in the respectiv folder. If you want to use a different service provider, you need to check if they may accept these gerbers or generate them yourself.
