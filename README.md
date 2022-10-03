@@ -1,15 +1,15 @@
 # LoRa-To-MQTT Gateway
 ## Introduction
 This repository gives you everything you need to easily build (it's a DIY project!) a great quality LoRa-To-MQTT gateway, based on EByte LoRa modules and an ESP32 and works either with Wi-Fi or Ethernet, running off 5V. There are two different versions of the gateway, details on those versions and which you should pick down below:
-- One with an EByte E32
-- One with EByte E220
+- One using an EByte E32
+- One using an EByte E220
 
 For giving the board Ethernet capability, I'm using the [QuinLED ESP32 Ethernet Hat](https://quinled.info/quinled-esp32-ethernet/). Of course, It's natural that I *should* have also used a [QuinLed ESP32](https://quinled.info/quinled-esp32/), but I had a few spare standard ESP32 devboards laying around with no use for, so I designed the board around these. But that said, I might one day design a version completely based on the QuinLED-ESP32.
 
 To easily switch between Wi-FI and Ethernet, there's a jumper on the board to do just that. This even works with the board powered; no need to cut power.
 
 ## What do I need to do to get one?
-Again, this is a DIY project! So first off, you need a few soldering skills and I highly recommend either a SMD hot plate or hot air gun to solder the Ebyte E32 module. Its **impossible** to solder it with just an iron.
+Again, this is a DIY project! So first off, you need a few soldering skills and I highly recommend either a SMD hot plate or hot air gun to solder the Ebyte E32 module. Its **very very hard** to solder it with just an iron!
 
 ### 1. Get the PCBs
 So you want to get the PCBs printed at a PCB prototype factory of your choice, like JLCPCB or PCBWay. I've included the Gerber files for both in the respectiv folder. If you want to use a different service provider, you need to check if they may accept these gerbers or generate them yourself.
@@ -17,8 +17,10 @@ So you want to get the PCBs printed at a PCB prototype factory of your choice, l
 I also **highly recommend** that you order this PCB with a stencil, otherwise you gonna have a hard time putting the paste on the pads of the EByte module!
 
 ### 2. Get the components
-* **TBD:** I'll generate a BOM file per board version and throw it into its respective folder
-* Components you need for both boards:
+* Look up the iBOM files to get a list of components you need:
+    * [E32 version iBOM](https://github.com/ezcGman/lora-gateway/blob/master/pcbs/LoRa-Gateway-E32/ibom/LoRa-Gateway-E32.html)
+    * [E220 version iBOM](https://github.com/ezcGman/lora-gateway/blob/master/pcbs/LoRa-Gateway-E220/ibom/LoRa-Gateway-E220.html)
+* Additional links for the ESP32 and QuinLED Ethernet hat:
     * Regular ESP 32 DevKit (pick one with 2x15 pins!!): https://www.aliexpress.com/wholesale?catId=0&initiative_id=SB_20220311122647&SearchText=esp32+devkit
     * *(optional, if you want Ethernet)* QuinLED ESP32 with Ethernet hat:
         * Worldwide store: https://shop.allnetchina.cn/collections/quinled/products/quinled-esp32
@@ -30,7 +32,7 @@ Each PCB folder has an iBOM HTML file which gives you nice soldering instruction
 ### 4. Install the software
 Source is available in the `src` folder. Download Arduino IDE, check the `config.h` file and replace the placeholders with your settings, compile and upload to the ESP32. That should be it and the gateway should pop up in your MQTT server and send health check messages every 5 seconds.
 
-How you can now have your sensors and boards have LoRa messages sent to it can be found in the "Source Code / Software" section below.
+How you can now have your sensors and boards have LoRa messages sent to it can be found in the ["Source Code / Software"](#source-code--software) section below.
 
 ## PCBs
 ### General design
@@ -131,7 +133,27 @@ Now you can easily:
     * Define the struct that describes it
 
 ### How can I actually send messages?
-TBD actual example here after we refactored sending
+Take a look at the [`sendLoRaMessage`](/src/lora-gateway-e32/lora-ids.h#L160) function:
+`bool sendLoRaMessage(byte messageID, LoRaBase *loRaMessage, byte recipientId = 0, byte senderId = 0)`
+It expects us to give it:
+* The message ID we're going to send
+* As also the message itself
+
+We can also optionally specify:
+* The recipientId of this message. If not specified, it defaults to `LORA_GATEWAY_ID`
+* The senderId, which defaults to `LORA_DEVICE_ID`, if not specified
+
+So in your code, simply create an instance of the message ID you want to send and pass it to `sendLoRaMessage`:
+```
+LoRaMessageMailbox *loRaMessage = new LoRaMessageMailbox;
+loRaMessage->duration = duration;
+loRaMessage->distance = distance;
+loRaMessage->humidity = humidity;
+loRaMessage->temperature = temperature;
+
+sendLoRaMessage(LORA_MESSAGE_ID_MAILBOX, loRaMessage);
+```
+And that's it :)
 
 #### How does it work under the hood?
 For this we take a look at how the actual message is constructed that is sent via LoRa. The *basic idea* is stolen from the Arduino-LoRa library, which uses singly bytes to identify senders, receivers, etc.
@@ -143,5 +165,3 @@ Looking at a single message:
 * 3rd byte is the message ID
 * 4th-255th byte is the message we will split up
     * The message simply has all values joined together by a `|`. So taking the `mailbox` message example from above, the value for the message could look like this: `12345|3.56|44.55|27.4`
-
-I will soon release my mailbox sensor PCB and source code, so you can see the sender implemeted :)
