@@ -34,6 +34,9 @@ SPIClass spiE32(HSPI);
 // Used for Wi-Fi and MQTT
 const byte maxConnTries = 15;
 
+String mqttBaseTopic = "lora-gateway-e32";
+String mqttStatusBaseTopic = mqttBaseTopic + "/status";
+
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);  
 
@@ -206,6 +209,7 @@ bool setupDateTime() {
   Serial.println("Setting up DateTime...");
   DateTime.setServer("pool.ntp.org");
   DateTime.begin();
+  String mqttInitStatusBaseTopic = mqttStatusBaseTopic + "/dateTimeInitStatus";
 
   int dateTimeTries = 0;
   while (!DateTime.isTimeValid() && dateTimeTries < 10) {
@@ -215,10 +219,13 @@ bool setupDateTime() {
   }
 
   if (!DateTime.isTimeValid()) {
+    if (isNetworkUp()) mqttClient.publish(mqttInitStatusBaseTopic.c_str(), "failed", true);
     return false;
   }
 
   dtInitDone = true;
+
+  if (isNetworkUp()) mqttClient.publish(mqttInitStatusBaseTopic.c_str(), "success", true);
 
   return true;
 }
@@ -226,6 +233,7 @@ bool setupDateTime() {
 void connectLoRa() {
   if (!loraInitDone) {
     int loraConnTries = 0;
+    String mqttInitStatusBaseTopic = mqttStatusBaseTopic + "/loRaInitStatus";
 
     LoRa.setSPI(spiE32);
     LoRa.setPins(PIN_LORA_NSS, PIN_LORA_RST, PIN_LORA_DIO0);
@@ -237,14 +245,14 @@ void connectLoRa() {
   
     if (loraConnTries >= maxConnTries) {
       Serial.println("Starting LoRa failed!");
-      if (isNetworkUp()) mqttClient.publish("testing/lora-gateway-e32/initStatus", "failed", true);
+      if (isNetworkUp()) mqttClient.publish(mqttInitStatusBaseTopic.c_str(), "failed", true);
       delay(1000);
 
       ESP.restart();
     }
 
     Serial.println("Starting LoRa success!");
-    if (isNetworkUp()) mqttClient.publish("testing/lora-gateway-e32/initStatus", "success", true);
+    if (isNetworkUp()) mqttClient.publish(mqttInitStatusBaseTopic.c_str(), "success", true);
 
     loraInitDone = true;
 
@@ -283,9 +291,9 @@ void onLoRaReceive(int packetSize) {
   std::map<String, String> mqttMessagesMap = messageStruct->getMqttMessages();
   std::map<String, String>::iterator mqttMessage = mqttMessagesMap.begin();
 
-  String mqttBaseTopic = "lora-gateway-e32/devices/" + getLoRaDeviceNameById(senderId) + "/messages/" + messageStruct->getMqttTopicName() + "/";
+  String mqttMessageBaseTopic = mqttBaseTopic + "/devices/" + getLoRaDeviceNameById(senderId) + "/messages/" + messageStruct->getMqttTopicName() + "/";
   for (auto mqttMessage : mqttMessagesMap) {
-    if (isNetworkUp()) mqttClient.publish((mqttBaseTopic + mqttMessage.first).c_str(), mqttMessage.second.c_str(), true);
+    if (isNetworkUp()) mqttClient.publish((mqttMessageBaseTopic + mqttMessage.first).c_str(), mqttMessage.second.c_str(), true);
   }
 
   // if message is for this device, or broadcast, print details:
@@ -331,11 +339,17 @@ void loRaSetRfMode(bool receiving = true) {
 void loRaSetReceivingMode() { loRaSetRfMode(true); }
 void loRaSetTransmittingMode() { loRaSetRfMode(false); }
 
-void sendLastUpdated() {
+void sendLastUpdatedAndUptime() {
   String strDateTime = DateTime.format("%Y-%m-%dT%H:%M:%S%z");
   char charDateTime[strDateTime.length()];
   strDateTime.toCharArray(charDateTime, strDateTime.length());
-  if (isNetworkUp()) mqttClient.publish("testing/lora-gateway-e32/lastUpdated", charDateTime, true);
+  if (isNetworkUp()) mqttClient.publish((mqttStatusBaseTopic + "/lastUpdated").c_str(), charDateTime, true);
+
+  char charUptime[10];
+  sprintf(charUptime, "%d", millis() / 1000);
+  if (isNetworkUp()) mqttClient.publish((mqttStatusBaseTopic + "/uptimeInSeconds").c_str(), charUptime, true);
+
+  lastHealthCheck = millis();
 }
 
  
@@ -357,6 +371,8 @@ void setup() {
   WiFi.onEvent(WiFiEvent);
   checkEthWiFiJumperAndApply();
 
+  sendLastUpdatedAndUptime();
+
   loRaSetReceivingMode();
   connectLoRa();
 
@@ -376,8 +392,10 @@ void loop() {
   if (millis() - lastHealthCheck > 5000) {
     checkEthWiFiJumperAndApply();
 
-    if (isNetworkUp())sendLastUpdated();
-    lastHealthCheck = millis();
+    if (isNetworkUp()) sendLastUpdatedAndUptime();
+
+    // Updated in sendLastUpdatedAndUptime()
+    // lastHealthCheck = millis();
   }
 }
                                                                            
