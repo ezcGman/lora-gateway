@@ -53,7 +53,7 @@ You need to choose between those, as the EByte modules that use serial communica
 
 ### LoRa-Gateway-E32
 ![LoRa-Gateway-E32](/pcbs/LoRa-Gateway-E32/LoRa-Gateway-E32.png)
-This version is based on the EByte E32-400M20S or E32-900M20S, which offers direct serial communicaton to the Semtech SX1276. You need to use this specific module not any other that uses serial communication. Pick the right one for your region (tl;dr: 400 for US/Asia, 900 for Europe).
+This version is based on the EByte E32-400M20S or E32-900M20S, which offers direct serial communicaton to the Semtech SX1276. At the time of last research (begin of 2022), this is the only E-Byte module that works on this PCB, so you can't use any other that uses serial communication: They won't fit on the board / have a different pinout! Pick the right one for your region (tl;dr: 400 for US/Asia, 900 for Europe).
 
 The module is **not** in the BOM CSV file, you need to get it off AliExpress:
 - 400MHz:
@@ -62,8 +62,6 @@ The module is **not** in the BOM CSV file, you need to get it off AliExpress:
 - 900MHz
     - EBYTE IOT Factory Store: https://www.aliexpress.com/item/1005003509312425.html
     - cojxu Official Store: https://www.aliexpress.com/item/1005003646639064.html
-
-The software for this version is available in its first alpha v0 in the `src` folder.
 
 ### LoRa-Gateway-E220
 ![LoRa-Gateway-E220](/pcbs/LoRa-Gateway-E220/LoRa-Gateway-E220.png)
